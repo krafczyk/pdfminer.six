@@ -1,3 +1,4 @@
+import sys
 
 import logging
 from . import settings
@@ -138,3 +139,40 @@ class PDFPage(object):
             if maxpages and maxpages <= pageno+1:
                 break
         return
+
+    @classmethod
+    def get_pages2(cls, fp, pages, password='', caching=True, check_extractable=True):
+        print("create parser")
+        parser = PDFParser(fp)
+        print("create doc")
+        doc = PDFDocument(parser, password=password, caching=caching)
+        print("doc created")
+        if check_extractable and not doc.is_extractable:
+            raise PDFTextExtractionNotAllowed('Text extraction is not allowed: %r' % fp)
+
+        page_root = doc.catalog['Pages'].resolve()
+
+        for page_num in pages:
+            pg = page_root
+            if page_num > page_root['Count']:
+                return None
+            temp_sum = 0
+            while pg['Type'].name == 'Pages':
+                kids = pg['Kids']
+                if kids[0].resolve()['Type'].name == 'Pages':
+                    for kid_ref in kids:
+                        kid = kid_ref.resolve()
+                        if kid['Type'].name == 'Pages':
+                            if temp_sum + kid['Count'] < page_num:
+                                temp_sum += kid['Count']
+                            else:
+                                pg = kid
+                                break
+                else:
+                    page_ref = kids[page_num-temp_sum-1]
+                    pg = page_ref.resolve()
+                    yield (page_num, cls(doc, page_ref.objid, pg))
+
+        return
+
+
