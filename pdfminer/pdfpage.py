@@ -142,11 +142,8 @@ class PDFPage(object):
 
     @classmethod
     def get_pages2(cls, fp, pages, password='', caching=True, check_extractable=True):
-        print("create parser")
         parser = PDFParser(fp)
-        print("create doc")
         doc = PDFDocument(parser, password=password, caching=caching)
-        print("doc created")
         if check_extractable and not doc.is_extractable:
             raise PDFTextExtractionNotAllowed('Text extraction is not allowed: %r' % fp)
 
