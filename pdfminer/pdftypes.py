@@ -1,6 +1,7 @@
 
 import zlib
 import logging
+import pyximport; pyximport.install(language_level=sys.version_info[0], inplace=True)
 from .lzw import lzwdecode
 from .ascii85 import ascii85decode
 from .ascii85 import asciihexdecode
@@ -10,6 +11,7 @@ from .psparser import PSException
 from .psparser import PSObject
 from .psparser import LIT
 from . import settings
+from .utils_fast import apply_png_predictor_py3
 from .utils import apply_png_predictor
 from .utils import isnumber
 
@@ -291,7 +293,7 @@ class PDFStream(PDFObject):
                     colors = int_value(params.get('Colors', 1))
                     columns = int_value(params.get('Columns', 1))
                     bitspercomponent = int_value(params.get('BitsPerComponent', 8))
-                    data = apply_png_predictor(pred, colors, columns, bitspercomponent, data)
+                    data = apply_png_predictor_py3(pred, colors, columns, bitspercomponent, data)
                 else:
                     raise PDFNotImplementedError('Unsupported predictor: %r' % pred)
         self.data = data
