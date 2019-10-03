@@ -1,5 +1,6 @@
 from setuptools import setup
 import sys
+from Cython.Build import cythonize
 
 import pdfminer as package
 
@@ -44,4 +45,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Topic :: Text Processing',
     ],
+    ext_modules = cythonize('pdfminer/utils_fast.pyx',
+                            compiler_directives={'language_level': sys.version_info[0]}),
 )
