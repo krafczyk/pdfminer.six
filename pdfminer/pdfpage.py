@@ -123,11 +123,11 @@ class PDFPage(object):
     @classmethod
     def get_pages(klass, fp,
                   pagenos=None, maxpages=0, password='',
-                  caching=True, check_extractable=True):
+                  caching=True, check_extractable=True, fallback=True):
         # Create a PDF parser object associated with the file object.
         parser = PDFParser(fp)
         # Create a PDF document object that stores the document structure.
-        doc = PDFDocument(parser, password=password, caching=caching)
+        doc = PDFDocument(parser, password=password, caching=caching, fallback=fallback)
         # Check if the document allows text extraction. If not, abort.
         if check_extractable and not doc.is_extractable:
             raise PDFTextExtractionNotAllowed('Text extraction is not allowed: %r' % fp)
@@ -141,9 +141,10 @@ class PDFPage(object):
         return
 
     @classmethod
-    def get_pages2(cls, fp, pages, password='', caching=True, check_extractable=True):
+    def get_pages2(cls, fp, pages, password='', caching=True, check_extractable=True,
+                   fallback=True):
         parser = PDFParser(fp)
-        doc = PDFDocument(parser, password=password, caching=caching, fallback=False)
+        doc = PDFDocument(parser, password=password, caching=caching, fallback=fallback)
         if check_extractable and not doc.is_extractable:
             raise PDFTextExtractionNotAllowed('Text extraction is not allowed: %r' % fp)
 
