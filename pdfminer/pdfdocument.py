@@ -221,7 +221,7 @@ class PDFXRefFallback(PDFXRef):
 class PDFXRefStream(PDFBaseXRef):
 
     def __init__(self):
-        self.data = None
+        self._stream = None
         self.entlen = None
         self.fl1 = self.fl2 = self.fl3 = None
         self.ranges = []
@@ -238,18 +238,22 @@ class PDFXRefStream(PDFBaseXRef):
         if not isinstance(stream, PDFStream) or stream['Type'] is not LITERAL_XREF:
             raise PDFNoValidXRef('Invalid PDF stream spec.')
         size = stream['Size']
+        self._stream = stream
         index_array = stream.get('Index', (0, size))
         if len(index_array) % 2 != 0:
             raise PDFSyntaxError('Invalid index number')
         self.ranges.extend(choplist(2, index_array))
         (self.fl1, self.fl2, self.fl3) = stream['W']
-        self.data = stream.get_data()
         self.entlen = self.fl1+self.fl2+self.fl3
         self.trailer = stream.attrs
         log.info('xref stream: objid=%s, fields=%d,%d,%d',
                  ', '.join(map(repr, self.ranges)),
                  self.fl1, self.fl2, self.fl3)
         return
+
+    @property
+    def data(self):
+        return self._stream.get_data()
 
     def get_trailer(self):
         return self.trailer
