@@ -1,6 +1,7 @@
 
 import zlib
 import logging
+import sys
 import pyximport; pyximport.install(language_level=sys.version_info[0], inplace=True)
 from .lzw import lzwdecode
 from .ascii85 import ascii85decode
